@@ -144,13 +144,18 @@ contract PoSPool is PoolContext, Ownable, Initializable {
   function _updateAccRewardPerCfx() private {
     uint256 reward = _selfBalance() - lastPoolShot.balance;
     if (reward == 0 || lastPoolShot.available == 0) return;
+    // update pool total interest info
+    _poolSummary.totalInterest = _poolSummary.totalInterest.add(reward);
+
+    // update pool interest
+    uint256 poolShare = reward.mul(RATIO_BASE - poolUserShareRatio).div(RATIO_BASE);
+    _poolSummary.interest = _poolSummary.interest.add(poolShare);
+    
+    reward = reward.sub(poolShare);
 
     // update global accRewardPerCfx
     uint256 cfxCount = lastPoolShot.available.mul(CFX_COUNT_OF_ONE_VOTE);
     accRewardPerCfx = accRewardPerCfx.add(reward.div(cfxCount));
-
-    // update pool interest info
-    _poolSummary.totalInterest = _poolSummary.totalInterest.add(reward);
   }
 
   // depend on: accRewardPerCfx and lastUserShot
@@ -158,9 +163,9 @@ contract PoSPool is PoolContext, Ownable, Initializable {
     UserShot memory uShot = lastUserShots[_user];
     if (uShot.available == 0) return;
     uint256 latestInterest = accRewardPerCfx.sub(uShot.accRewardPerCfx).mul(uShot.available.mul(CFX_COUNT_OF_ONE_VOTE));
-    uint256 _userInterest = _calUserShare(latestInterest, _user);
-    userSummaries[_user].currentInterest = userSummaries[_user].currentInterest.add(_userInterest);
-    _poolSummary.interest = _poolSummary.interest.add(latestInterest.sub(_userInterest));
+    // uint256 _userInterest = _calUserShare(latestInterest, _user);
+    userSummaries[_user].currentInterest = userSummaries[_user].currentInterest.add(latestInterest);
+    // _poolSummary.interest = _poolSummary.interest.add(latestInterest.sub(_userInterest));
   }
 
   // depend on: lastPoolShot
@@ -489,6 +494,10 @@ contract PoSPool is PoolContext, Ownable, Initializable {
 
   function userVotePower(address user) external view returns (uint256) {
     return IVotingEscrow(votingEscrow).userVotePower(user);
+  }
+
+  function updatePoolInterest() public onlyOwner {
+    _updateAccRewardPerCfx();
   }
 
   // ======================== admin methods =====================
