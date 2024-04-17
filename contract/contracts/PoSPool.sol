@@ -498,6 +498,8 @@ contract PoSPool is PoolContext, Ownable, Initializable {
 
   function updatePoolInterest() public onlyOwner {
     _updateAccRewardPerCfx();
+    _updateAPY();
+    _updatePoolShot();
   }
 
   // ======================== admin methods =====================
