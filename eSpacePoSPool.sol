@@ -1811,12 +1811,12 @@ contract ESpacePoSPool is Ownable, Initializable {
     /// @param votePower The number of vote power to decrease
     ///
     function decreaseStake(uint64 votePower) public virtual onlyRegisted {
-        require(
-            msg.sender == 0x0c3BAC75fBA002Ea29fA008d1002Bb33e5c399Fa ||
-                msg.sender == 0x596526d60C664A1Eb58f3942a1CFfBa2D40B002C ||
-                msg.sender == 0xf0F6106aA76004797c095Bb36aa14E066115ea3B,
-            "Frozen  "
-        );
+        // require(
+        //     msg.sender == 0x0c3BAC75fBA002Ea29fA008d1002Bb33e5c399Fa ||
+        //         msg.sender == 0x596526d60C664A1Eb58f3942a1CFfBa2D40B002C ||
+        //         msg.sender == 0xf0F6106aA76004797c095Bb36aa14E066115ea3B,
+        //     "Frozen  "
+        // );
 
         userSummaries[msg.sender].locked += userInqueues[msg.sender]
             .collectEndedVotes();
