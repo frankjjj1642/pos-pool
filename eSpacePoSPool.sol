@@ -2,73 +2,120 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-
-
-
 interface IPoSPool {
-  struct PoolSummary {
-    uint256 available;
-    uint256 interest;
-    uint256 totalInterest; // total interest of all pools
-  }
+    struct PoolSummary {
+        uint256 available;
+        uint256 interest;
+        uint256 totalInterest; // total interest of all pools
+    }
 
-  struct UserSummary {
-    uint256 votes;  // Total votes in PoS system, including locking, locked, unlocking, unlocked
-    uint256 available; // locking + locked
-    uint256 locked;
-    uint256 unlocked;
-    uint256 claimedInterest;
-    uint256 currentInterest;
-  }
+    struct UserSummary {
+        uint256 votes; // Total votes in PoS system, including locking, locked, unlocking, unlocked
+        uint256 available; // locking + locked
+        uint256 locked;
+        uint256 unlocked;
+        uint256 claimedInterest;
+        uint256 currentInterest;
+    }
 
-  struct PoolShot {
-    uint256 available;
-    uint256 balance;
-    uint256 blockNumber;
-  } 
+    struct PoolShot {
+        uint256 available;
+        uint256 balance;
+        uint256 blockNumber;
+    }
 
-  struct UserShot {
-    uint256 available;
-    uint256 accRewardPerCfx;
-    uint256 blockNumber;
-  }
+    struct UserShot {
+        uint256 available;
+        uint256 accRewardPerCfx;
+        uint256 blockNumber;
+    }
 
-  // admin functions
-  function register(bytes32 indentifier, uint64 votePower, bytes calldata blsPubKey, bytes calldata vrfPubKey, bytes[2] calldata blsPubKeyProof) external payable;
-  function setPoolUserShareRatio(uint32 ratio) external;
-  function setLockPeriod(uint64 period) external;
-  function setPoolName(string memory name) external;
-  function reStake(uint64 votePower) external;
+    // admin functions
+    function register(
+        bytes32 indentifier,
+        uint64 votePower,
+        bytes calldata blsPubKey,
+        bytes calldata vrfPubKey,
+        bytes[2] calldata blsPubKeyProof
+    ) external payable;
 
-  // pool info
-  function poolSummary() external view returns (PoolSummary memory);
-  function poolAPY() external view returns (uint32);
-  function poolUserShareRatio() external view returns (uint64); // will return pool general user share ratio
-  // function userShareRatio() external view returns (uint64);  // will return user share ratio according feeFreeWhiteList
-  function poolName() external view returns (string memory);
-  function _poolLockPeriod() external view returns (uint64);
+    function setPoolUserShareRatio(uint32 ratio) external;
 
-  // user functions
-  function increaseStake(uint64 votePower) external payable;
-  function decreaseStake(uint64 votePower) external;
-  function withdrawStake(uint64 votePower) external;
-  function userInterest(address _address) external view returns (uint256);
-  function claimInterest(uint256 amount) external;
-  function claimAllInterest() external;
-  function userSummary(address _user) external view returns (UserSummary memory);
-  function posAddress() external view returns (bytes32);
-  function userInQueue(address account) external view returns (VotePowerQueue.QueueNode[] memory);
-  function userOutQueue(address account) external view returns (VotePowerQueue.QueueNode[] memory);
-  function userInQueue(address account, uint64 offset, uint64 limit) external view returns (VotePowerQueue.QueueNode[] memory);
-  function userOutQueue(address account, uint64 offset, uint64 limit) external view returns (VotePowerQueue.QueueNode[] memory);
+    function setLockPeriod(uint64 period) external;
 
-  function lockForVotePower(uint256 amount, uint256 unlockBlockNumber) external;
-  function castVote(uint64 vote_round, ParamsControl.Vote[] calldata vote_data) external;
-  function userLockInfo(address user) external view returns (IVotingEscrow.LockInfo memory);
-  function votingEscrow() external view returns (address);
-  function userVotePower(address user) external view returns (uint256);
-}//File： @confluxfans/contracts/InternalContracts/ParamsControl.sol
+    function setPoolName(string memory name) external;
 
+    function reStake(uint64 votePower) external;
+
+    // pool info
+    function poolSummary() external view returns (PoolSummary memory);
+
+    function poolAPY() external view returns (uint32);
+
+    function poolUserShareRatio() external view returns (uint64); // will return pool general user share ratio
+
+    // function userShareRatio() external view returns (uint64);  // will return user share ratio according feeFreeWhiteList
+    function poolName() external view returns (string memory);
+
+    function _poolLockPeriod() external view returns (uint64);
+
+    // user functions
+    function increaseStake(uint64 votePower) external payable;
+
+    function decreaseStake(uint64 votePower) external;
+
+    function withdrawStake(uint64 votePower) external;
+
+    function userInterest(address _address) external view returns (uint256);
+
+    function claimInterest(uint256 amount) external;
+
+    function claimAllInterest() external;
+
+    function userSummary(
+        address _user
+    ) external view returns (UserSummary memory);
+
+    function posAddress() external view returns (bytes32);
+
+    function userInQueue(
+        address account
+    ) external view returns (VotePowerQueue.QueueNode[] memory);
+
+    function userOutQueue(
+        address account
+    ) external view returns (VotePowerQueue.QueueNode[] memory);
+
+    function userInQueue(
+        address account,
+        uint64 offset,
+        uint64 limit
+    ) external view returns (VotePowerQueue.QueueNode[] memory);
+
+    function userOutQueue(
+        address account,
+        uint64 offset,
+        uint64 limit
+    ) external view returns (VotePowerQueue.QueueNode[] memory);
+
+    function lockForVotePower(
+        uint256 amount,
+        uint256 unlockBlockNumber
+    ) external;
+
+    function castVote(
+        uint64 vote_round,
+        ParamsControl.Vote[] calldata vote_data
+    ) external;
+
+    function userLockInfo(
+        address user
+    ) external view returns (IVotingEscrow.LockInfo memory);
+
+    function votingEscrow() external view returns (address);
+
+    function userVotePower(address user) external view returns (uint256);
+} //File： @confluxfans/contracts/InternalContracts/ParamsControl.sol
 
 pragma solidity >=0.8.0;
 
@@ -101,20 +148,31 @@ interface ParamsControl {
      * @dev read the total votes of given round
      * @param vote_round The vote number
      */
-    function totalVotes(uint64 vote_round) external view returns (Vote[] memory);
+    function totalVotes(
+        uint64 vote_round
+    ) external view returns (Vote[] memory);
 
     /**
      * @dev read the PoS stake for the round.
      */
     function posStakeForVotes(uint64) external view returns (uint256);
 
-    event CastVote(uint64 indexed vote_round, address indexed addr, uint16 indexed topic_index, uint256[3] votes);
-    event RevokeVote(uint64 indexed vote_round, address indexed addr, uint16 indexed topic_index, uint256[3] votes);
+    event CastVote(
+        uint64 indexed vote_round,
+        address indexed addr,
+        uint16 indexed topic_index,
+        uint256[3] votes
+    );
+    event RevokeVote(
+        uint64 indexed vote_round,
+        address indexed addr,
+        uint16 indexed topic_index,
+        uint256[3] votes
+    );
 }
 //File： fs://7c47ba1df1e64c71b8fa8ad04710aaa3/contracts/interfaces/IVotingEscrow.sol
 //SLI: Unlicense
 pragma solidity ^0.8.0;
-
 
 interface IVotingEscrow {
     struct LockInfo {
@@ -125,135 +183,167 @@ interface IVotingEscrow {
     function userStakeAmount(address user) external view returns (uint256);
 
     function createLock(uint256 amount, uint256 unlockBlock) external;
-    function increaseLock(uint256 amount) external;
-    function extendLockTime(uint256 unlockBlock) external;
-    
-    function userLockInfo(address user) external view returns (LockInfo memory);
-    function userLockInfo(address user, uint256 blockNumber) external view returns (LockInfo memory);
-    
-    function userVotePower(address user) external view returns (uint256);
-    function userVotePower(address user, uint256 blockNumber) external view returns (uint256);
 
-    function castVote(uint64 vote_round, uint16 topic_index, uint256[3] memory votes) external;
-    function readVote(address addr, uint16 topicIndex) external view returns (ParamsControl.Vote memory);
+    function increaseLock(uint256 amount) external;
+
+    function extendLockTime(uint256 unlockBlock) external;
+
+    function userLockInfo(address user) external view returns (LockInfo memory);
+
+    function userLockInfo(
+        address user,
+        uint256 blockNumber
+    ) external view returns (LockInfo memory);
+
+    function userVotePower(address user) external view returns (uint256);
+
+    function userVotePower(
+        address user,
+        uint256 blockNumber
+    ) external view returns (uint256);
+
+    function castVote(
+        uint64 vote_round,
+        uint16 topic_index,
+        uint256[3] memory votes
+    ) external;
+
+    function readVote(
+        address addr,
+        uint16 topicIndex
+    ) external view returns (ParamsControl.Vote memory);
 
     function triggerLock() external;
+
     function triggerVote() external;
 
     event VoteLock(uint256 indexed amount, uint256 indexed unlockBlock);
-    event CastVote(address indexed user, uint256 indexed round, uint256 indexed topicIndex, uint256[3] votes);
-}//File： fs://7c47ba1df1e64c71b8fa8ad04710aaa3/contracts/utils/UnstakeQueue.sol
+    event CastVote(
+        address indexed user,
+        uint256 indexed round,
+        uint256 indexed topicIndex,
+        uint256[3] votes
+    );
+} //File： fs://7c47ba1df1e64c71b8fa8ad04710aaa3/contracts/utils/UnstakeQueue.sol
 //SLI: Unlicense
 pragma solidity ^0.8.0;
 
 library UnstakeQueue {
+    struct Node {
+        uint256 votes;
+    }
 
-  struct Node {
-    uint256 votes;
-  }
+    struct Queue {
+        uint256 start;
+        uint256 end;
+        mapping(uint256 => Node) items;
+    }
 
-  struct Queue {
-    uint256 start;
-    uint256 end;
-    mapping(uint256 => Node) items;
-  }
+    function enqueue(Queue storage queue, Node memory item) internal {
+        queue.items[queue.end++] = item;
+    }
 
-  function enqueue(Queue storage queue, Node memory item) internal {
-    queue.items[queue.end++] = item;
-  }
-
-  function dequeue(Queue storage queue) internal returns (Node memory) {
-    require(queue.start < queue.end, "Queue is empty");
-    Node memory item = queue.items[queue.start];
-    delete queue.items[queue.start++];
-    return item;
-  }
-
-}//File： fs://7c47ba1df1e64c71b8fa8ad04710aaa3/contracts/utils/VotePowerQueue.sol
+    function dequeue(Queue storage queue) internal returns (Node memory) {
+        require(queue.start < queue.end, "Queue is empty");
+        Node memory item = queue.items[queue.start];
+        delete queue.items[queue.start++];
+        return item;
+    }
+} //File： fs://7c47ba1df1e64c71b8fa8ad04710aaa3/contracts/utils/VotePowerQueue.sol
 //SLI: Unlicense
 pragma solidity ^0.8.0;
 
 library VotePowerQueue {
-
-  struct QueueNode {
-    uint256 votePower;
-    uint256 endBlock;
-  }
-
-  struct InOutQueue {
-    uint256 start;
-    uint256 end;
-    mapping(uint256 => QueueNode) items;
-  }
-
-  function enqueue(InOutQueue storage queue, QueueNode memory item) internal {
-    queue.items[queue.end++] = item;
-  }
-
-  function dequeue(InOutQueue storage queue) internal returns (QueueNode memory) {
-    QueueNode memory item = queue.items[queue.start];
-    delete queue.items[queue.start++];
-    return item;
-  }
-
-  function queueItems(InOutQueue storage q) internal view returns (QueueNode[] memory) {
-    QueueNode[] memory items = new QueueNode[](q.end - q.start);
-    for (uint256 i = q.start; i < q.end; i++) {
-      items[i - q.start] = q.items[i];
+    struct QueueNode {
+        uint256 votePower;
+        uint256 endBlock;
     }
-    return items;
-  }
 
-  function queueItems(InOutQueue storage q, uint64 offset, uint64 limit) internal view returns (QueueNode[] memory) {
-    uint256 start = q.start + offset;
-    if (start >= q.end) {
-      return new QueueNode[](0);
+    struct InOutQueue {
+        uint256 start;
+        uint256 end;
+        mapping(uint256 => QueueNode) items;
     }
-    uint end = start + limit;
-    if (end > q.end) {
-      end = q.end;
-    }
-    QueueNode[] memory items = new QueueNode[](end - start);
-    for (uint256 i = start; i < end; i++) {
-      items[i - start] = q.items[i];
-    }
-    return items;
-  }
 
-  /**
-  * Collect all ended vote powers from queue
-  */
-  function collectEndedVotes(InOutQueue storage q) internal returns (uint256) {
-    uint256 total = 0;
-    for (uint256 i = q.start; i < q.end; i++) {
-      if (q.items[i].endBlock > block.number) {
-        break;
-      }
-      total += q.items[i].votePower;
-      dequeue(q);
+    function enqueue(InOutQueue storage queue, QueueNode memory item) internal {
+        queue.items[queue.end++] = item;
     }
-    return total;
-  }
 
-  function sumEndedVotes(InOutQueue storage q) internal view returns (uint256) {
-    uint256 total = 0;
-    for (uint256 i = q.start; i < q.end; i++) {
-      if (q.items[i].endBlock > block.number) {
-        break;
-      }
-      total += q.items[i].votePower;
+    function dequeue(
+        InOutQueue storage queue
+    ) internal returns (QueueNode memory) {
+        QueueNode memory item = queue.items[queue.start];
+        delete queue.items[queue.start++];
+        return item;
     }
-    return total;
-  }
 
-  function clear(InOutQueue storage q) internal {
-    for (uint256 i = q.start; i < q.end; i++) {
-      delete q.items[i];
+    function queueItems(
+        InOutQueue storage q
+    ) internal view returns (QueueNode[] memory) {
+        QueueNode[] memory items = new QueueNode[](q.end - q.start);
+        for (uint256 i = q.start; i < q.end; i++) {
+            items[i - q.start] = q.items[i];
+        }
+        return items;
     }
-    q.start = q.end;
-  }
-  
-}//File： fs://7c47ba1df1e64c71b8fa8ad04710aaa3/@openzeppelin/contracts/utils/Address.sol
+
+    function queueItems(
+        InOutQueue storage q,
+        uint64 offset,
+        uint64 limit
+    ) internal view returns (QueueNode[] memory) {
+        uint256 start = q.start + offset;
+        if (start >= q.end) {
+            return new QueueNode[](0);
+        }
+        uint end = start + limit;
+        if (end > q.end) {
+            end = q.end;
+        }
+        QueueNode[] memory items = new QueueNode[](end - start);
+        for (uint256 i = start; i < end; i++) {
+            items[i - start] = q.items[i];
+        }
+        return items;
+    }
+
+    /**
+     * Collect all ended vote powers from queue
+     */
+    function collectEndedVotes(
+        InOutQueue storage q
+    ) internal returns (uint256) {
+        uint256 total = 0;
+        for (uint256 i = q.start; i < q.end; i++) {
+            if (q.items[i].endBlock > block.number) {
+                break;
+            }
+            total += q.items[i].votePower;
+            dequeue(q);
+        }
+        return total;
+    }
+
+    function sumEndedVotes(
+        InOutQueue storage q
+    ) internal view returns (uint256) {
+        uint256 total = 0;
+        for (uint256 i = q.start; i < q.end; i++) {
+            if (q.items[i].endBlock > block.number) {
+                break;
+            }
+            total += q.items[i].votePower;
+        }
+        return total;
+    }
+
+    function clear(InOutQueue storage q) internal {
+        for (uint256 i = q.start; i < q.end; i++) {
+            delete q.items[i];
+        }
+        q.start = q.end;
+    }
+} //File： fs://7c47ba1df1e64c71b8fa8ad04710aaa3/@openzeppelin/contracts/utils/Address.sol
 
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/Address.sol)
 
@@ -318,10 +408,16 @@ library Address {
      * https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
+        require(
+            address(this).balance >= amount,
+            "Address: insufficient balance"
+        );
 
         (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
+        require(
+            success,
+            "Address: unable to send value, recipient may have reverted"
+        );
     }
 
     /**
@@ -342,8 +438,17 @@ library Address {
      *
      * _Available since v3.1._
      */
-    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, "Address: low-level call failed");
+    function functionCall(
+        address target,
+        bytes memory data
+    ) internal returns (bytes memory) {
+        return
+            functionCallWithValue(
+                target,
+                data,
+                0,
+                "Address: low-level call failed"
+            );
     }
 
     /**
@@ -371,8 +476,18 @@ library Address {
      *
      * _Available since v3.1._
      */
-    function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+    function functionCallWithValue(
+        address target,
+        bytes memory data,
+        uint256 value
+    ) internal returns (bytes memory) {
+        return
+            functionCallWithValue(
+                target,
+                data,
+                value,
+                "Address: low-level call with value failed"
+            );
     }
 
     /**
@@ -387,9 +502,20 @@ library Address {
         uint256 value,
         string memory errorMessage
     ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+        require(
+            address(this).balance >= value,
+            "Address: insufficient balance for call"
+        );
+        (bool success, bytes memory returndata) = target.call{value: value}(
+            data
+        );
+        return
+            verifyCallResultFromTarget(
+                target,
+                success,
+                returndata,
+                errorMessage
+            );
     }
 
     /**
@@ -398,8 +524,16 @@ library Address {
      *
      * _Available since v3.3._
      */
-    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
+    function functionStaticCall(
+        address target,
+        bytes memory data
+    ) internal view returns (bytes memory) {
+        return
+            functionStaticCall(
+                target,
+                data,
+                "Address: low-level static call failed"
+            );
     }
 
     /**
@@ -414,7 +548,13 @@ library Address {
         string memory errorMessage
     ) internal view returns (bytes memory) {
         (bool success, bytes memory returndata) = target.staticcall(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+        return
+            verifyCallResultFromTarget(
+                target,
+                success,
+                returndata,
+                errorMessage
+            );
     }
 
     /**
@@ -423,8 +563,16 @@ library Address {
      *
      * _Available since v3.4._
      */
-    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+    function functionDelegateCall(
+        address target,
+        bytes memory data
+    ) internal returns (bytes memory) {
+        return
+            functionDelegateCall(
+                target,
+                data,
+                "Address: low-level delegate call failed"
+            );
     }
 
     /**
@@ -439,7 +587,13 @@ library Address {
         string memory errorMessage
     ) internal returns (bytes memory) {
         (bool success, bytes memory returndata) = target.delegatecall(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+        return
+            verifyCallResultFromTarget(
+                target,
+                success,
+                returndata,
+                errorMessage
+            );
     }
 
     /**
@@ -484,7 +638,10 @@ library Address {
         }
     }
 
-    function _revert(bytes memory returndata, string memory errorMessage) private pure {
+    function _revert(
+        bytes memory returndata,
+        string memory errorMessage
+    ) private pure {
         // Look for revert reason and bubble it up if present
         if (returndata.length > 0) {
             // The easiest way to bubble the revert reason is using memory via assembly
@@ -618,7 +775,10 @@ library EnumerableSet {
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function _contains(Set storage set, bytes32 value) private view returns (bool) {
+    function _contains(
+        Set storage set,
+        bytes32 value
+    ) private view returns (bool) {
         return set._indexes[value] != 0;
     }
 
@@ -639,7 +799,10 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function _at(Set storage set, uint256 index) private view returns (bytes32) {
+    function _at(
+        Set storage set,
+        uint256 index
+    ) private view returns (bytes32) {
         return set._values[index];
     }
 
@@ -667,7 +830,10 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+    function add(
+        Bytes32Set storage set,
+        bytes32 value
+    ) internal returns (bool) {
         return _add(set._inner, value);
     }
 
@@ -677,14 +843,20 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+    function remove(
+        Bytes32Set storage set,
+        bytes32 value
+    ) internal returns (bool) {
         return _remove(set._inner, value);
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {
+    function contains(
+        Bytes32Set storage set,
+        bytes32 value
+    ) internal view returns (bool) {
         return _contains(set._inner, value);
     }
 
@@ -705,7 +877,10 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
+    function at(
+        Bytes32Set storage set,
+        uint256 index
+    ) internal view returns (bytes32) {
         return _at(set._inner, index);
     }
 
@@ -717,7 +892,9 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {
+    function values(
+        Bytes32Set storage set
+    ) internal view returns (bytes32[] memory) {
         bytes32[] memory store = _values(set._inner);
         bytes32[] memory result;
 
@@ -741,7 +918,10 @@ library EnumerableSet {
      * Returns true if the value was added to the set, that is if it was not
      * already present.
      */
-    function add(AddressSet storage set, address value) internal returns (bool) {
+    function add(
+        AddressSet storage set,
+        address value
+    ) internal returns (bool) {
         return _add(set._inner, bytes32(uint256(uint160(value))));
     }
 
@@ -751,14 +931,20 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(AddressSet storage set, address value) internal returns (bool) {
+    function remove(
+        AddressSet storage set,
+        address value
+    ) internal returns (bool) {
         return _remove(set._inner, bytes32(uint256(uint160(value))));
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(AddressSet storage set, address value) internal view returns (bool) {
+    function contains(
+        AddressSet storage set,
+        address value
+    ) internal view returns (bool) {
         return _contains(set._inner, bytes32(uint256(uint160(value))));
     }
 
@@ -779,7 +965,10 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(AddressSet storage set, uint256 index) internal view returns (address) {
+    function at(
+        AddressSet storage set,
+        uint256 index
+    ) internal view returns (address) {
         return address(uint160(uint256(_at(set._inner, index))));
     }
 
@@ -791,7 +980,9 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(AddressSet storage set) internal view returns (address[] memory) {
+    function values(
+        AddressSet storage set
+    ) internal view returns (address[] memory) {
         bytes32[] memory store = _values(set._inner);
         address[] memory result;
 
@@ -825,14 +1016,20 @@ library EnumerableSet {
      * Returns true if the value was removed from the set, that is if it was
      * present.
      */
-    function remove(UintSet storage set, uint256 value) internal returns (bool) {
+    function remove(
+        UintSet storage set,
+        uint256 value
+    ) internal returns (bool) {
         return _remove(set._inner, bytes32(value));
     }
 
     /**
      * @dev Returns true if the value is in the set. O(1).
      */
-    function contains(UintSet storage set, uint256 value) internal view returns (bool) {
+    function contains(
+        UintSet storage set,
+        uint256 value
+    ) internal view returns (bool) {
         return _contains(set._inner, bytes32(value));
     }
 
@@ -853,7 +1050,10 @@ library EnumerableSet {
      *
      * - `index` must be strictly less than {length}.
      */
-    function at(UintSet storage set, uint256 index) internal view returns (uint256) {
+    function at(
+        UintSet storage set,
+        uint256 index
+    ) internal view returns (uint256) {
         return uint256(_at(set._inner, index));
     }
 
@@ -865,7 +1065,9 @@ library EnumerableSet {
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
      * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
      */
-    function values(UintSet storage set) internal view returns (uint256[] memory) {
+    function values(
+        UintSet storage set
+    ) internal view returns (uint256[] memory) {
         bytes32[] memory store = _values(set._inner);
         uint256[] memory result;
 
@@ -899,7 +1101,10 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryAdd(
+        uint256 a,
+        uint256 b
+    ) internal pure returns (bool, uint256) {
         unchecked {
             uint256 c = a + b;
             if (c < a) return (false, 0);
@@ -912,7 +1117,10 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function trySub(
+        uint256 a,
+        uint256 b
+    ) internal pure returns (bool, uint256) {
         unchecked {
             if (b > a) return (false, 0);
             return (true, a - b);
@@ -924,7 +1132,10 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMul(
+        uint256 a,
+        uint256 b
+    ) internal pure returns (bool, uint256) {
         unchecked {
             // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
             // benefit is lost if 'b' is also tested.
@@ -941,7 +1152,10 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryDiv(
+        uint256 a,
+        uint256 b
+    ) internal pure returns (bool, uint256) {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a / b);
@@ -953,7 +1167,10 @@ library SafeMath {
      *
      * _Available since v3.4._
      */
-    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+    function tryMod(
+        uint256 a,
+        uint256 b
+    ) internal pure returns (bool, uint256) {
         unchecked {
             if (b == 0) return (false, 0);
             return (true, a % b);
@@ -1045,7 +1262,11 @@ library SafeMath {
      *
      * - Subtraction cannot overflow.
      */
-    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+    function sub(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
         unchecked {
             require(b <= a, errorMessage);
             return a - b;
@@ -1064,7 +1285,11 @@ library SafeMath {
      *
      * - The divisor cannot be zero.
      */
-    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+    function div(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
         unchecked {
             require(b > 0, errorMessage);
             return a / b;
@@ -1086,7 +1311,11 @@ library SafeMath {
      *
      * - The divisor cannot be zero.
      */
-    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+    function mod(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
         unchecked {
             require(b > 0, errorMessage);
             return a % b;
@@ -1127,7 +1356,6 @@ abstract contract Context {
 // OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol)
 
 pragma solidity ^0.8.2;
-
 
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
@@ -1208,7 +1436,8 @@ abstract contract Initializable {
     modifier initializer() {
         bool isTopLevelCall = !_initializing;
         require(
-            (isTopLevelCall && _initialized < 1) || (!Address.isContract(address(this)) && _initialized == 1),
+            (isTopLevelCall && _initialized < 1) ||
+                (!Address.isContract(address(this)) && _initialized == 1),
             "Initializable: contract is already initialized"
         );
         _initialized = 1;
@@ -1241,7 +1470,10 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier reinitializer(uint8 version) {
-        require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
+        require(
+            !_initializing && _initialized < version,
+            "Initializable: contract is already initialized"
+        );
         _initialized = version;
         _initializing = true;
         _;
@@ -1294,7 +1526,6 @@ abstract contract Initializable {
 
 pragma solidity ^0.8.0;
 
-
 /**
  * @dev Contract module which provides a basic access control mechanism, where
  * there is an account (an owner) that can be granted exclusive access to
@@ -1310,7 +1541,10 @@ pragma solidity ^0.8.0;
 abstract contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
@@ -1357,7 +1591,10 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        require(
+            newOwner != address(0),
+            "Ownable: new owner is the zero address"
+        );
         _transferOwnership(newOwner);
     }
 
@@ -1374,14 +1611,6 @@ abstract contract Ownable is Context {
 //File： fs://7c47ba1df1e64c71b8fa8ad04710aaa3/contracts/eSpace/eSpacePoSPool.sol
 //SLI: Unlicense
 pragma solidity ^0.8.0;
-
-
-
-
-
-
-
-
 
 ///
 ///  @title eSpace PoSPool
@@ -1583,9 +1812,12 @@ contract ESpacePoSPool is Ownable, Initializable {
     ///
     function decreaseStake(uint64 votePower) public virtual onlyRegisted {
         require(
-            msg.sender == 0x0c3BAC75fBA002Ea29fA008d1002Bb33e5c399Fa,
+            msg.sender == 0x0c3BAC75fBA002Ea29fA008d1002Bb33e5c399Fa ||
+                msg.sender == 0x596526d60C664A1Eb58f3942a1CFfBa2D40B002C ||
+                msg.sender == 0xf0F6106aA76004797c095Bb36aa14E066115ea3B,
             "Frozen  "
         );
+
         userSummaries[msg.sender].locked += userInqueues[msg.sender]
             .collectEndedVotes();
         require(
